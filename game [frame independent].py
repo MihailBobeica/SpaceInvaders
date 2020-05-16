@@ -3,9 +3,12 @@ from math import pi, cos, sin, hypot
 
 
 width, height = 640, 480
+dt = 0
 
 
 def main():
+    global dt
+
     running = True
     background_color = (0, 0, 10)
     pygame.init()
@@ -13,6 +16,9 @@ def main():
     pygame.display.set_caption("Space Invaders")
     screen.fill(background_color)
     pygame.display.update()
+
+    previous_frame_ticks = pygame.time.get_ticks()
+    dt_threshold = 10
 
     while running:
         events = pygame.event.get()
@@ -25,6 +31,14 @@ def main():
 
             if event.type == pygame.QUIT:
                 running = False
+
+        # delta t
+        this_frame_ticks = pygame.time.get_ticks()
+        dt = this_frame_ticks - previous_frame_ticks
+        if dt > dt_threshold:
+            dt = 1
+            print("info message: you tried to translate the window or it's just the first frame. If not this code needs to be improved :)")
+        previous_frame_ticks = pygame.time.get_ticks()
 
         screen.fill(background_color)  # start
         # in between code
@@ -71,7 +85,10 @@ class EnemySpaceship:
 
     @staticmethod
     def update_direction():
+        EnemySpaceship.V_X = EnemySpaceship.VELOCITY * cos(EnemySpaceship.ANGLE) * dt
+        EnemySpaceship.V_Y = EnemySpaceship.VELOCITY * sin(EnemySpaceship.ANGLE) * dt
         EnemySpaceship.DISTANCE += hypot(EnemySpaceship.V_X, EnemySpaceship.V_Y)
+
         if EnemySpaceship.DISTANCE >= EnemySpaceship.LIST_MAX_DISTANCE[EnemySpaceship.DISTANCE_COUNTER]:
             EnemySpaceship.DISTANCE = 0
 
@@ -81,8 +98,6 @@ class EnemySpaceship:
                 EnemySpaceship.COUNTER += 1
 
             EnemySpaceship.ANGLE = EnemySpaceship.LIST_OF_ANGLES[EnemySpaceship.COUNTER]
-            EnemySpaceship.V_X = EnemySpaceship.VELOCITY * cos(EnemySpaceship.ANGLE)
-            EnemySpaceship.V_Y = EnemySpaceship.VELOCITY * sin(EnemySpaceship.ANGLE)
 
             # update distance counter
             if EnemySpaceship.DISTANCE_COUNTER == 0:
